@@ -33,7 +33,6 @@ def loadDBFromPath(path, classnum):
             continue
         data = {}
         data['class'] = classnum
-# draw rectangles on the original image
         img = cv2.imread(path + '/' + file, cv2.IMREAD_COLOR)
         data['feat'] = extractFeature(img)
         db.append(data)
@@ -43,22 +42,19 @@ positivePath = os.getcwd() + '/data/true'
 negativePath = os.getcwd() + '/data/false'
 
 db = []
-db += loadDBFromPath    return gtc.getFeat(img, algorithm = 'lbp')
-(positivePath, 1)
+db += loadDBFromPath(positivePath, 1)
 db += loadDBFromPath(negativePath, 0)
 
 
 # perform selective search
 img_lbl, regions = selectivesearch.selective_search(sk_img, scale=500, sigma=0.9, min_size=10)
 
-# draw rectangles on the original image
 candidates = set()
 for r in regions:
     # # excluding same rectangle (with different segments)
     if r['rect'] in candidates:
         continue
-    # # excluding     return gtc.getFeat(img, algorithm = 'lbp')
-regions smaller than 2000 pixels
+    # # excluding regions smaller than 2000 pixels
     # if r['size'] <100  or r['size']  > 1000 :
     #     continue
 
@@ -72,8 +68,7 @@ regions smaller than 2000 pixels
     # if w / h > 2.0 or h / w > 2.0:
     #     continue
     
-    candid    return gtc.getFeat(img, algorithm = 'lbp')
-ates.add(r['rect'])
+    candidates.add(r['rect'])
 
 # draw rectangles on the original image
 fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, 6))
@@ -93,8 +88,7 @@ for x, y, w, h in candidates:
         vote.append(  (dist, data['class']) ) 
 
     vote.sort()
-    positive = 0    return gtc.getFeat(img, algorithm = 'lbp')
-
+    positive = 0
     negative = 0
     for i in range(3):
         if vote[i][1] == 1 :
