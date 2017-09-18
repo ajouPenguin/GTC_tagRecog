@@ -8,6 +8,7 @@ from skimage import io
 import skimage.data
 import selectivesearch
 import gtcfeat as gtc
+import numpy as np
 
 #code start 
 # loading astronaut image
@@ -20,8 +21,9 @@ if len(sys.argv) > 1 :
     cv_img = cv2.imread(fname, cv2.IMREAD_COLOR)
 else :
     print('Failed to load images')
-    exit(-1)
-
+    #exit(-1)
+    sk_img = io.imread("/home/hyeon/gtc/data/testset/side_01.jpg")
+    cv_img = cv2.imread("/home/hyeon/gtc/data/testset/side_01.jpg", cv2.IMREAD_COLOR)
 
 def extractFeature(img):
     return gtc.getFeat(img, algorithm = 'lbp')
@@ -40,13 +42,15 @@ def loadDBFromPath(path, classnum):
 
 positivePath = os.getcwd() + '/data/true'  
 negativePath = os.getcwd() + '/data/false'
+negativeBGPath = negativePath + '/bg'
 
 db = []
 db += loadDBFromPath(positivePath, 1)
 db += loadDBFromPath(negativePath, 0)
+db += loadDBFromPath(negativeBGPath, 0)
 
 
-# perform selective search
+# perform selective search (selective search from https://github.com/AlpacaDB/selectivesearch)
 img_lbl, regions = selectivesearch.selective_search(sk_img, scale=500, sigma=0.9, min_size=10)
 
 candidates = set()
@@ -64,7 +68,6 @@ for r in regions:
     if w < 10 or h < 10 or w > 100 or h > 100 or w / h > 2 or h / w > 2:
         continue
 
-
     # if w / h > 2.0 or h / w > 2.0:
     #     continue
     
@@ -73,8 +76,8 @@ for r in regions:
 # draw rectangles on the original image
 fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, 6))
 ax.imshow(sk_img)
-for x, y, w, h in candidates:
 
+for x, y, w, h in candidates:
     x1 = x 
     x2 = x + w - 1
     y1 = y 
@@ -82,12 +85,28 @@ for x, y, w, h in candidates:
     cropped = cv_img[y1:y2, x1:x2]
     feat = extractFeature(cropped)
 
-    vote = [] 
+    """vote = [] 
     for data in db:
         dist = gtc.getDistance(feat, data['feat'])
-        vote.append(  (dist, data['class']) ) 
+        vote.append(  (dist, data['class']) ) """
 
-    vote.sort()
+    fileList = os.listdir(os.getcwd())
+
+    trainset = [data['feat'] for data in db]
+    classes = [data['class'] for data in db]
+    
+    svm = cv2.ml.SVM_create()
+    svm.setType(cv2.ml.SVM_C_SVC)
+    svm.setKernel(cv2.ml.SVM_LINEAR)
+    svm.setTermCriteria((cv2.TERM_CRITERIA_COUNT, 100, 1.e-06))
+    for item in fileList:
+        if item.find('svm_data.dat') is -1:
+            svm.train(trainset, cv2.ml.ROW_SAMPLE, classes)
+        else:
+            pass
+            #cv2.ml.SVM_load('svm_data.dat')
+
+    pred = svm.predict(feat)
     positive = 0
     negative = 0
     for i in range(3):

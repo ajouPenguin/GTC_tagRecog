@@ -67,7 +67,8 @@ def getDistance(feat1, feat2, algorithm='ssd'):
         for i in range(dim):
             dd = feat1[i] - feat2[i] 
             ssd += dd * dd
-        return ssd 
+        return ssd
+    
     return None
 
 def isTargetPattern(img, masksize = (32, 32)):
