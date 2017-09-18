@@ -22,8 +22,8 @@ if len(sys.argv) > 1 :
 else :
     print('Failed to load images')
     #exit(-1)
-    sk_img = io.imread("/home/hyeon/gtc/data/testset/side_01.jpg")
-    cv_img = cv2.imread("/home/hyeon/gtc/data/testset/side_01.jpg", cv2.IMREAD_COLOR)
+    sk_img = io.imread("/home/hyeon/gtc/data/testset/front_03.jpg")
+    cv_img = cv2.imread("/home/hyeon/gtc/data/testset/front_03.jpg", cv2.IMREAD_COLOR)
 
 def extractFeature(img):
     return gtc.getFeat(img, algorithm = 'lbp')
@@ -92,8 +92,8 @@ for x, y, w, h in candidates:
 
     fileList = os.listdir(os.getcwd())
 
-    trainset = [data['feat'] for data in db]
-    classes = [data['class'] for data in db]
+    trainset = np.float32([data['feat'] for data in db])
+    classes = np.array([data['class'] for data in db])
     
     svm = cv2.ml.SVM_create()
     svm.setType(cv2.ml.SVM_C_SVC)
@@ -106,18 +106,14 @@ for x, y, w, h in candidates:
             pass
             #cv2.ml.SVM_load('svm_data.dat')
 
-    pred = svm.predict(feat)
-    positive = 0
-    negative = 0
-    for i in range(3):
-        if vote[i][1] == 1 :
-            positive += 1 
-        else:
-            negative += 1 
+    feat = [feat]
+    samples = np.float32(feat)
+    pred = svm.predict(samples)
     
-    ec = 'blue'
-    lw = 3
-    if  negative >= positive:
+    if pred == 1:
+        ec = 'blue'
+        lw = 3
+    else:
         ec = 'red'
         lw = 1
     
