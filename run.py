@@ -22,8 +22,8 @@ if len(sys.argv) > 1 :
 else :
     print('Failed to load images')
     #exit(-1)
-    sk_img = io.imread("/home/hyeon/gtc/data/testset/front_03.jpg")
-    cv_img = cv2.imread("/home/hyeon/gtc/data/testset/front_03.jpg", cv2.IMREAD_COLOR)
+    sk_img = io.imread('/home/hyeon/gtc/data/true/data26.JPG')
+    cv_img = cv2.imread('/home/hyeon/gtc/data/true/data26.JPG', cv2.IMREAD_COLOR)
 
 def extractFeature(img):
     return gtc.getFeat(img, algorithm = 'lbp')
@@ -42,6 +42,7 @@ def loadDBFromPath(path, classnum):
 
 positivePath = os.getcwd() + '/data/true'  
 negativePath = os.getcwd() + '/data/false'
+    #svm.setTermCriteria((cv2.TERM_CRITERIA_COUNT, 100, 1.e-06))
 negativeBGPath = negativePath + '/bg'
 
 db = []
@@ -51,25 +52,19 @@ db += loadDBFromPath(negativeBGPath, 0)
 
 
 # perform selective search (selective search from https://github.com/AlpacaDB/selectivesearch)
-img_lbl, regions = selectivesearch.selective_search(sk_img, scale=500, sigma=0.9, min_size=10)
+img_lbl, regions = selectivesearch.selective_search(sk_img, scale=500, sigma=0.9, min_size=20)
 
 candidates = set()
 for r in regions:
-    # # excluding same rectangle (with different segments)
+    # excluding same rectangle (with different segments)
     if r['rect'] in candidates:
         continue
-    # # excluding regions smaller than 2000 pixels
-    # if r['size'] <100  or r['size']  > 1000 :
-    #     continue
 
     # distorted rects
     x, y, w, h = r['rect']
 
     if w < 10 or h < 10 or w > 100 or h > 100 or w / h > 2 or h / w > 2:
         continue
-
-    # if w / h > 2.0 or h / w > 2.0:
-    #     continue
     
     candidates.add(r['rect'])
 
@@ -85,11 +80,6 @@ for x, y, w, h in candidates:
     cropped = cv_img[y1:y2, x1:x2]
     feat = extractFeature(cropped)
 
-    """vote = [] 
-    for data in db:
-        dist = gtc.getDistance(feat, data['feat'])
-        vote.append(  (dist, data['class']) ) """
-
     fileList = os.listdir(os.getcwd())
 
     trainset = np.float32([data['feat'] for data in db])
@@ -98,19 +88,22 @@ for x, y, w, h in candidates:
     svm = cv2.ml.SVM_create()
     svm.setType(cv2.ml.SVM_C_SVC)
     svm.setKernel(cv2.ml.SVM_LINEAR)
-    svm.setTermCriteria((cv2.TERM_CRITERIA_COUNT, 100, 1.e-06))
+    svm.setC(2.67)
+    svm.setGamma(5.383)
+    #svm.setTermCriteria((cv2.TERM_CRITERIA_COUNT, 100, 1.e-06))
     for item in fileList:
         if item.find('svm_data.dat') is -1:
             svm.train(trainset, cv2.ml.ROW_SAMPLE, classes)
+            #svm.save('svm_data.dat')
         else:
             pass
-            #cv2.ml.SVM_load('svm_data.dat')
+            #svm.load('svm_data.dat')
 
     feat = [feat]
     samples = np.float32(feat)
     pred = svm.predict(samples)
     
-    if pred == 1:
+    if pred[0] == 1:
         ec = 'blue'
         lw = 3
     else:
