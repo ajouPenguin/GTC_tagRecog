@@ -48,7 +48,7 @@ def getFeat(img, algorithm = 'histogram', masksize = (32, 32)):
                     for dc in range(-1, 2):
                         if dr == 0 and dc == 0: 
                             continue
-                        lbp_value *= 2
+                        #lbp_value *= 2
                         if img[r+dr][c+dc] > img[r][c] :
                             lbp_value += 1
                 lbp_feat[ lbp_value ] += 1
@@ -59,12 +59,30 @@ def getFeat(img, algorithm = 'histogram', masksize = (32, 32)):
 
         return lbp_feat
 
+    elif algorithm == 'mct':
+        lbp_feat = [0] * 1023
+        for r in range(0, maskRows):
+            for c in range(0, maskCols):
+                for dr in range(-1, 2):
+                    for dc in range(-1, 2):
+                        if r+dr < 0 or c+dc < 0 or r+dr >= maskRows or c+dc >= maskCols:
+                            continue
+                        if img[r+dr][c+dc] > img[r][c] and r*maskRows+c < 1023:
+                            lbp_feat[r*maskRows+c] += 1
+
+        total = maskCols * maskRows
+        for i in range(1023):
+            lbp_feat[i] /= float(total)
+
+        return lbp_feat
+
     elif algorithm == 'hog':
         fd, hog_img = hog(img, orientations=8, pixels_per_cell=(16, 16), cells_per_block=(1, 1), visualise=True)
+
         return np.resize(hog_img, -1)
-        pass
 
     elif algorithm == 'surf':
+        surf = cv2.fe
         pass
 
     return None
