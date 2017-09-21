@@ -1,4 +1,4 @@
-# GTC_barcodeRecog
+# GTC_tagRecog
 Samsung GTC assignment & SW capstone design projects
 
 ## Pain points
