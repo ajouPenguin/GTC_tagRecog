@@ -1,0 +1,38 @@
+<annotation>
+	<folder>set3</folder>
+	<filename>image12.png</filename>
+	<path>C:\Users\user\Desktop\addition\170817_SEHC barcode image[962]\set3\image12.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>752</width>
+		<height>480</height>
+		<depth>1</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>True Barcode</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>488</xmin>
+			<ymin>211</ymin>
+			<xmax>543</xmax>
+			<ymax>263</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>True Barcode</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>113</xmin>
+			<ymin>232</ymin>
+			<xmax>149</xmax>
+			<ymax>267</ymax>
+		</bndbox>
+	</object>
+</annotation>
