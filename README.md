@@ -1,5 +1,5 @@
 # GTC_barcodeRecog
-Samsung GTC assignment
+Samsung GTC assignment & SW capstone design projects
 
 ## Pain points
 넓은 공장에 있는 전산화되지 않은 상품들을 빠르게 전산화하고 관리할 수 없을까?
