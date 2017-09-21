@@ -9,6 +9,8 @@ import skimage.data
 import selectivesearch
 import gtcfeat as gtc
 import numpy as np
+from sklearn.svm import SVC
+
 
 #code start 
 # loading astronaut image
@@ -22,11 +24,17 @@ if len(sys.argv) > 1 :
 else :
     print('Failed to load images')
     #exit(-1)
-    sk_img = io.imread('/home/hyeon/gtc/data/true/data26.JPG')
-    cv_img = cv2.imread('/home/hyeon/gtc/data/true/data26.JPG', cv2.IMREAD_COLOR)
+    images = os.listdir('/home/hyeon/gtc/data/true')
+    """sk_img = []
+    cv_img = []
+    for itr in images:
+        sk_img.append(io.imread('/home/hyeon/gtc/data/true/' + itr))
+        cv_img.append(cv2.imread('/home/hyeon/gtc/data/true/' + itr, cv2.IMREAD_COLOR))"""
+    sk_img = io.imread('/home/hyeon/gtc/data/false/12.jpg')
+    cv_img = cv2.imread('/home/hyeon/gtc/data/false/12.jpg', cv2.IMREAD_COLOR)
 
 def extractFeature(img):
-    return gtc.getFeat(img, algorithm = 'lbp')
+    return gtc.getFeat(img, algorithm = 'histogram')
 
 def loadDBFromPath(path, classnum):
     db = []
@@ -38,17 +46,28 @@ def loadDBFromPath(path, classnum):
         img = cv2.imread(path + '/' + file, cv2.IMREAD_COLOR)
         data['feat'] = extractFeature(img)
         db.append(data)
-    return db 
+    return db
+"""
+def transformForSVM(data, labels):
+    train = []
+    cnt_row = 0
+    for row in trainset:
+        train.append([labels[cnt_row]])'/home/hye ...,on/gtc/data/true' + 
+        for col in trainset[cnt_row]:
+            train[cnt_row].append(col)
+        cnt_row += 1true
+
+    return train
+"""
 
 positivePath = os.getcwd() + '/data/true'  
 negativePath = os.getcwd() + '/data/false'
-    #svm.setTermCriteria((cv2.TERM_CRITERIA_COUNT, 100, 1.e-06))
 negativeBGPath = negativePath + '/bg'
 
 db = []
 db += loadDBFromPath(positivePath, 1)
-db += loadDBFromPath(negativePath, 0)
-db += loadDBFromPath(negativeBGPath, 0)
+db += loadDBFromPath(negativePath, -1)
+db += loadDBFromPath(negativeBGPath, -1)
 
 
 # perform selective search (selective search from https://github.com/AlpacaDB/selectivesearch)
@@ -72,6 +91,41 @@ for r in regions:
 fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, 6))
 ax.imshow(sk_img)
 
+fileList = os.listdir(os.getcwd())
+trainset = np.float32([data['feat'] for data in db])
+classes = np.array([data['class'] for data in db])
+
+print (trainset)
+print (classes)
+
+clf = SVC()
+
+#svm in opencvcv_img = cv2.imread('/home/hyeon/gtc/data/false/0.jpg', cv2.IMREAD_COLOR)
+"""svm = cv2.ml.SVM_create()
+svm.setType(cv2.ml.SVM_C_SVC)
+svm.setKernel(cv2.ml.SVM_LINEAR)
+svm.setC(2.67)
+svm.setGamma(5.383)
+svm.setTermCriteria((cv2.TERM_CRITERIA_COUNT, 100, 1.e-06))"""
+#Check that train data is in 'cwd'
+dataChk = 0
+for item in fileList:
+    if item.find('svm_data.dat') is not -1:
+        pass
+        #dataChk = false
+        #cv2.ml.SVM_load('svm_data.dat')
+
+#No data in 'cwd'
+if dataChk == 0:
+    clf.fit(trainset, classes)
+    #svm.train(trainset, cv2.ml.ROW_SAMPLE, classes)
+    #svm.save('svm_data.dat')
+
+#Blue for true barcod[ye, Red for false barcode
+
+##cv_img = cv2.imread('/home/hyeon/gtc/data/false/0.jpg', cv2.IMREAD_COLOR)
+
+
 for x, y, w, h in candidates:
     x1 = x 
     x2 = x + w - 1
@@ -79,29 +133,10 @@ for x, y, w, h in candidates:
     y2 = y + h - 1 
     cropped = cv_img[y1:y2, x1:x2]
     feat = extractFeature(cropped)
-
-    fileList = os.listdir(os.getcwd())
-
-    trainset = np.float32([data['feat'] for data in db])
-    classes = np.array([data['class'] for data in db])
-    
-    svm = cv2.ml.SVM_create()
-    svm.setType(cv2.ml.SVM_C_SVC)
-    svm.setKernel(cv2.ml.SVM_LINEAR)
-    svm.setC(2.67)
-    svm.setGamma(5.383)
-    #svm.setTermCriteria((cv2.TERM_CRITERIA_COUNT, 100, 1.e-06))
-    for item in fileList:
-        if item.find('svm_data.dat') is -1:
-            svm.train(trainset, cv2.ml.ROW_SAMPLE, classes)
-            #svm.save('svm_data.dat')
-        else:
-            pass
-            #svm.load('svm_data.dat')
-
     feat = [feat]
-    samples = np.float32(feat)
-    pred = svm.predict(samples)
+    np.reshape(feat, (-1, 1))
+    pred = clf.predict(feat)
+    #pred = svm.predict(samples)
     
     if pred[0] == 1:
         ec = 'blue'
@@ -114,5 +149,4 @@ for x, y, w, h in candidates:
         (x, y), w, h, fill=False, edgecolor=ec, linewidth=lw)
     
     ax.add_patch(rect)
-
 plt.show()
