@@ -1,5 +1,6 @@
 import cv2
 import skimage.data
+from skimage.feature import hog
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import sys
@@ -57,6 +58,14 @@ def getFeat(img, algorithm = 'histogram', masksize = (32, 32)):
             lbp_feat[i] /= float(total)
 
         return lbp_feat
+
+    elif algorithm == 'hog':
+        fd, hog_img = hog(img, orientations=8, pixels_per_cell=(16, 16), cells_per_block=(1, 1), visualise=True)
+        return np.resize(hog_img, -1)
+        pass
+
+    elif algorithm == 'surf':
+        pass
 
     return None
 
