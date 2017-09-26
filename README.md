@@ -18,6 +18,13 @@ Samsung GTC assignment & SW capstone design projects
 3. ...
 ## Benefits
 - 공장 : 사람의 손을 거치지 않아도 영상만 확보된다면 빠르고 정확하게 재고의 전산화가 가능
+## Dependency
+- selective search
+- NumPy
+- matplotlib
+- opencv3.3
+- python3.x
+
 ## References
 - hog feature : http://scikit-image.org/docs/dev/auto_examples/features_detection/plot_hog.html
 - selective search : https://github.com/AlpacaDB/selectivesearch
