@@ -24,6 +24,8 @@ Samsung GTC assignment & SW capstone design projects
 - matplotlib
 - opencv3.3
 - python3.x
+- scikit-learn (SVM)
+- scikit-image
 ## References
 - hog feature : http://scikit-image.org/docs/dev/auto_examples/features_detection/plot_hog.html
 - selective search : https://github.com/AlpacaDB/selectivesearch
