@@ -1,51 +1,35 @@
-import sys
 import os
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 import cv2
-import skimage
 from skimage import io
-import skimage.data
 import selectivesearch
 import gtcfeat as gtc
 import xml.etree.ElementTree as et
 
 def extractFeature(img):
-    return gtc.getFeat(img, algorithm = 'lbp')
+    return gtc.getFeat(img, algorithm='hog')# + gtc.getFeat(img, algorithm='mct')
 
-def loadDBFromPath(path, classnum):
-    db = []
-    for file in os.listdir(path):
-        if not file.upper().endswith('.JPG') :
-            continue
-        data = {}
-        data['class'] = classnum
-        img = cv2.imread(path + '/' + file, cv2.IMREAD_COLOR)
-        data['feat'] = extractFeature(img)
-        db.append(data)
-    return db 
+negativePath = os.getcwd() + '/data/images'
 
-positivePath = os.getcwd() + '/data/true'  
-negativePath = os.getcwd() + '/data/false'
-
-db = []
-db += loadDBFromPath(positivePath, 1)
-db += loadDBFromPath(negativePath, 0)
-
-path = os.getcwd() + "/data/trainset/"
-xmlList = os.listdir(path + "xml")
+path = os.getcwd() + "/data/images/"
+imgList = os.listdir(path)
+xmlList = os.listdir(path + 'xml/')
 
 cnt = 0
 
-for li in xmlList :
-    xmlFile = et.parse(path + "xml/" + li)
-    root = xmlFile.getroot()
-    cv_img = cv2.imread(path + li[0:-3] + "jpg", cv2.IMREAD_COLOR)
-    sk_img = io.imread(path + li[0:-3] + "jpg")
+for li in imgList:
+    xmlName = li[0:-3] + "xml"
+    try:
+        xmlFile = et.parse(path + "xml/" + li)
+        root = xmlFile.getroot()
+    except:
+        xmlFile = None
+        root = None
+    cv_img = cv2.imread(path + li, cv2.IMREAD_COLOR)
+    sk_img = io.imread(path + li)
 
 
     # perform selective search (selective search from https://github.com/AlpacaDB/selectivesearch)
-    img_lbl, regions = selectivesearch.selective_search(sk_img, scale=500, sigma=0.9, min_size=10)
+    img_lbl, regions = selectivesearch.selective_search(sk_img, scale=1, sigma=0.9, min_size=100)
 
     candidates = set()
     for r in regions:
@@ -75,14 +59,20 @@ for li in xmlList :
         xmax = []
         ymin = []
         ymax = []
-        for itr in root.iter("xmin"):
-            xmin.append(itr.text)
-        for itr in root.iter("xmax"):
-            xmax.append(itr.text)
-        for itr in root.iter("ymin"):
-            ymin.append(itr.text)
-        for itr in root.iter("ymax"):
-            ymax.append(itr.text)
+        if root != None:
+            for itr in root.iter("xmin"):
+                xmin.append(itr.text)
+            for itr in root.iter("xmax"):
+                xmax.append(itr.text)
+            for itr in root.iter("ymin"):
+                ymin.append(itr.text)
+            for itr in root.iter("ymax"):
+                ymax.append(itr.text)
+        else:
+            xmin.append(0)
+            xmax.append(0)
+            ymin.append(0)
+            ymax.append(0)
 
         i = 0
         while i < len(xmin):
@@ -112,6 +102,10 @@ for li in xmlList :
         cropped = cv_img[y1:y2, x1:x2]
         feat = extractFeature(cropped)
         # save false data
-        fileName = os.getcwd() + "/data/false/bg/" + str(cnt) + ".jpg"
+        fileName = os.getcwd() + "/data/images/bg/" + str(cnt) + ".jpg"
         cnt += 1
         cv2.imwrite(fileName,cropped)
+        print("success to save " + str(cnt) + ".jpg")
+
+        if cnt > 80000:
+            break

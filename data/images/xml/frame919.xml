@@ -1,0 +1,26 @@
+<annotation>
+  <folder>images</folder>
+  <filename>frame919</filename>
+  <path>Z:\gtc\images\frame919.jpg</path>
+  <source>
+    <database>Unknown</database>
+  </source>
+  <size>
+    <width>752</width>
+    <height>480</height>
+    <depth>1</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>True Barcode</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>76</xmin>
+      <ymin>185</ymin>
+      <xmax>118</xmax>
+      <ymax>239</ymax>
+    </bndbox>
+  </object>
+</annotation>

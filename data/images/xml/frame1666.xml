@@ -1,0 +1,26 @@
+<annotation>
+  <folder>images</folder>
+  <filename>frame1666</filename>
+  <path>Z:\gtc\images\frame1666.jpg</path>
+  <source>
+    <database>Unknown</database>
+  </source>
+  <size>
+    <width>752</width>
+    <height>480</height>
+    <depth>1</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>True Barcode</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>691</xmin>
+      <ymin>296</ymin>
+      <xmax>716</xmax>
+      <ymax>327</ymax>
+    </bndbox>
+  </object>
+</annotation>

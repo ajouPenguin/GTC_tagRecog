@@ -1,0 +1,38 @@
+<annotation>
+  <folder>images</folder>
+  <filename>frame684</filename>
+  <path>Z:\gtc\images\frame684.jpg</path>
+  <source>
+    <database>Unknown</database>
+  </source>
+  <size>
+    <width>752</width>
+    <height>480</height>
+    <depth>1</depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>True Barcode</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>83</xmin>
+      <ymin>289</ymin>
+      <xmax>125</xmax>
+      <ymax>330</ymax>
+    </bndbox>
+  </object>
+  <object>
+    <name>True Barcode</name>
+    <pose>Unspecified</pose>
+    <truncated>0</truncated>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>673</xmin>
+      <ymin>205</ymin>
+      <xmax>705</xmax>
+      <ymax>255</ymax>
+    </bndbox>
+  </object>
+</annotation>

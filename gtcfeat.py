@@ -98,7 +98,7 @@ def getDistance(feat1, feat2, algorithm='ssd'):
     
     return None
 
-def isTargetPattern(img, masksize = (32, 32)):
+def isTargetPattern(img, masksize = (48, 48)):
     maskRows = maskSize[0]
     maskCols = maskSize[1]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
