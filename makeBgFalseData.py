@@ -15,6 +15,7 @@ imgList = os.listdir(path)
 xmlList = os.listdir(path + 'xml/')
 
 cnt = 0
+frameCnt = 0
 
 for li in imgList:
     xmlName = li[0:-3] + "xml"
@@ -26,6 +27,8 @@ for li in imgList:
         root = None
     cv_img = cv2.imread(path + li, cv2.IMREAD_COLOR)
     sk_img = io.imread(path + li)
+    frameCnt += 1
+    print("%d frame" % frameCnt)
 
 
     # perform selective search (selective search from https://github.com/AlpacaDB/selectivesearch)
@@ -106,6 +109,5 @@ for li in imgList:
         cnt += 1
         cv2.imwrite(fileName,cropped)
         print("success to save " + str(cnt) + ".jpg")
-
-        if cnt > 80000:
+        if cnt > 22500:
             break

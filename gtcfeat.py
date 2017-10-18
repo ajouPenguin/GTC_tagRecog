@@ -1,12 +1,7 @@
 import cv2
-import skimage.data
 from skimage.feature import hog
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-import sys
 import numpy as np 
 import os
-import selectivesearch
 
 # img = cv2.imread('messi5.jpg')
 #     5 

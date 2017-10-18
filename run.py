@@ -1,14 +1,13 @@
 import sys
 import os
 import cv2
-from skimage import io
-import skvideo.io as vio
-import selectivesearch
+import selectiveSearch as ss
 import gtcfeat as gtc
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.externals import joblib
 import random
+import time
 
 def brightChange(data, val):
     if(val == 0):
@@ -42,36 +41,37 @@ def loadDBFromPath(path, classnum):
         img = cv2.imread(path + '/' + file, cv2.IMREAD_COLOR)
         data['feat'] = extractFeature(img)
         db.append(data)
-        for i in range(29):
-            data['feat'] = extractFeature(brightChange(img, 0))
-            db.append(data)
-            if classnum != 1 and i > 5:
-                break
+        if classnum == 1:
+            for i in range(15):
+                data['feat'] = extractFeature(brightChange(img, 0))
+                db.append(data)
 
     return db
 
 
-def processing(sk_img, cv_img):
+def processing(cv_img):
     # perform selective search (selective search from https://github.com/AlpacaDB/selectivesearch)
-    img_lbl, regions = selectivesearch.selective_search(sk_img, scale=1, sigma=0.9, min_size=100)
+    rect = ss.selective_search(cv_img, opt = 'f')
 
     candidates = set()
-    for r in regions:
+    cnt = 0
+    for r in rect:
         # excluding same rectangle (with different segments)
-        if r['rect'] in candidates:
+        x, y, w, h = r
+
+        tmp = (x, y, w, h)
+
+        if tmp in candidates:
             continue
 
         # distorted rects
-        x, y, w, h = r['rect']
 
         if w < 10 or h < 10 or w > 100 or h > 100 or w / h > 2 or h / w > 2:
             continue
-
-        candidates.add(r['rect'])
-
-    # draw rectangles on the original image
-    #fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, 6))
-    #ax.imshow(sk_img)
+        cnt += 1
+        candidates.add(tmp)
+    
+    #print("Num of candidates:" + str(cnt))
     ret = []
 
     for x, y, w, h in candidates:
@@ -90,9 +90,13 @@ def processing(sk_img, cv_img):
 
 
 positivePath = os.getcwd() + '/data/true'
+positivePath2 = os.getcwd() + '/data/true2'
 negativePath = os.getcwd() + '/data/false'
-negativeBGPath = negativePath + '/bg'
+totalTime = time.time()
 
+newBG = []
+for i in range(15):
+    newBG.append(negativePath + '/bg/' + str(i))
 
 #Load data for learning
 try:
@@ -105,24 +109,30 @@ except:
     db = []
     print("true data")
     db += loadDBFromPath(positivePath, 1)
+    print("true data")
+    db += loadDBFromPath(positivePath2, 1)
     print("false data")
     db += loadDBFromPath(negativePath, -1)
     print("bg data")
-    db += loadDBFromPath(negativeBGPath, -1)
+    for i in newBG:
+        db += loadDBFromPath(i, -1)
 
     #Make trainset and classes
     print("Make train set")
     trainset = np.float32([data['feat'] for data in db])
     classes = np.array([data['class'] for data in db])
 
+    t_learn = time.time()
     #Start learning
     print("Start learning")
     clf.fit(trainset, classes)
     joblib.dump(clf, 'dump.pkl')
 
+    print("learning time : %s sec" % str(time.time()-t_learn))
+
     # Recall check
     trueDB = []
-    print("Check recall")
+    print("Check ACC")
     for itr in db:
         if itr['class'] == 1:
             trueDB.append(itr['feat'])
@@ -137,48 +147,62 @@ except:
 
 
 # loading images
-sk_img = None
 cv_img = None
 if len(sys.argv) > 1 :
     fname = sys.argv[1]
-    sk_img = io.imread(fname)
     cv_img = cv2.imread(fname, cv2.IMREAD_COLOR)
 else :
+    t_output = time.time()
     #print('Failed to load images')
     #exit(-1)
-
     mpgFile = 'output.mpg'
     vidcap = cv2.VideoCapture(mpgFile)
-    skvid = vio.vreader(mpgFile)
     cnt = 0
+    falseCnt = 0
 
     #while(vidcap.isOpened()):
 
     out = cv2.VideoWriter("a.mpg", cv2.VideoWriter_fourcc(*'mpeg'), 30.0, (752, 480))
-    for frame in skvid:
+    while(True) :
     # read()는 grab()와 retrieve() 두 함수를 한 함수로 불러옴
     # 두 함수를 동시에 불러오는 이유는 프레임이 존재하지 않을 때
     # grab() 함수를 이용하여 return false 혹은 NULL 값을 넘겨 주기 때문
+        fps = time.time()
         ret, image = vidcap.read()
         # 캡쳐된 이미지를 저장하는 함수
         if(int(vidcap.get(1))):
             cnt += 1
-            rect = processing(frame, image)
+            numOfRect = 0
+            rect = processing(image)
             for (x1, x2, y1, y2, pred) in rect:
+                numOfRect += 1
                 if pred == 1:
-                    ec = (0, 0, 255)
-                    lw = 3
+                    #ec = (0, 0, 255)
+                    #lw = 3
+                    imgName = './catch/fa' + str(falseCnt) + '.jpg'
+                    cv2.imwrite(imgName, image[y1:y2, x1:x2])
+                    falseCnt += 1
                 #else:
-                #    ec = (255, 0, 0)
-                #    lw = 1
-                    cv2.rectangle(image, (x1, y1), (x2, y2), ec, lw)
+                    #ec = (255, 0, 0)
+                    #lw = 1
+                    #cv2.rectangle(image, (x1, y1), (x2, y2), ec, lw)
             out.write(image)
+            #cv2.imshow('frame', image)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
             #if(cnt % 30 == 0):
-            print('%d frame transformation complete' % (cnt))
+            print('%d frame' % (cnt))
+
+            fps = time.time() - fps
+            print(str(fps) + "sec")
+
         if ret == 0:
             break
 
             # cv2.imshow('frame', image)
             # if cv2.waitKey(1) & 0xFF == ord('q'):
             # break
+    print("Output time : %s sec", str(time.time() - t_output))
+
+print("Total time : %s sec", str(time.time() - totalTime))
