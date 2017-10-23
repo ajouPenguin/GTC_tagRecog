@@ -44,6 +44,7 @@ def loadDBFromPath(path, classnum):
         if classnum == 1:
             for i in range(15):
                 data['feat'] = extractFeature(brightChange(img, 0))
+                data['feat'],eigenvectors = cv2.PCACompute(data['feat'], np.mean(data['feat'], axis=0).reshape(1,-1))
                 db.append(data)
 
     return db
@@ -88,14 +89,14 @@ def processing(cv_img):
 
     return ret
 
-
-positivePath = os.getcwd() + '/data/true'
-positivePath2 = os.getcwd() + '/data/true2'
+positivePath = []
+for i in range(3):
+    positivePath.append(os.getcwd() + '/data/true/' + str(i))
 negativePath = os.getcwd() + '/data/false'
 totalTime = time.time()
 
 newBG = []
-for i in range(15):
+for i in range(20):
     newBG.append(negativePath + '/bg/' + str(i))
 
 #Load data for learning
@@ -107,16 +108,37 @@ except:
     print('Building new model')
     print("Load data")
     db = []
-    print("true data")
-    db += loadDBFromPath(positivePath, 1)
-    print("true data")
-    db += loadDBFromPath(positivePath2, 1)
-    print("false data")
-    db += loadDBFromPath(negativePath, -1)
-    print("bg data")
-    for i in newBG:
-        db += loadDBFromPath(i, -1)
+    cnt = 1
+    try:
+        print("Try to read summary.dat")
+        with open('./data/summary.dat','r') as f:
+            tmp += f.readlines()
+            dic['class'] = tmp[6]
+            dic['feat'] = tmp[13:]
+            db+=dic
+    except:
+        print("Can't find summary.dat")
+        print("True")
+        for i in positivePath:
+            db += loadDBFromPath(i, 1)
+            print("True (" + str(cnt) + "/3)")
+            cnt += 1
 
+        print("False")
+        db += loadDBFromPath(negativePath, -1)
+
+        print("Background")
+        cnt = 1
+        for i in newBG:
+            db += loadDBFromPath(i, -1)
+            print("Background (" + str(cnt) + "/20)")
+            cnt += 1
+        with open('./data/summary.dat','w') as f:
+            for li in db:
+                f.write("class:%s feat:%s\n" % (li['class'], li['feat']))
+
+
+    print("%s"%db[0]['feat'])
     #Make trainset and classes
     print("Make train set")
     trainset = np.float32([data['feat'] for data in db])
@@ -148,61 +170,60 @@ except:
 
 # loading images
 cv_img = None
+fname = 0
 if len(sys.argv) > 1 :
     fname = sys.argv[1]
-    cv_img = cv2.imread(fname, cv2.IMREAD_COLOR)
-else :
-    t_output = time.time()
-    #print('Failed to load images')
-    #exit(-1)
-    mpgFile = 'output.mpg'
-    vidcap = cv2.VideoCapture(mpgFile)
-    cnt = 0
-    falseCnt = 0
+    fname = int(fname)
+    #cv_img = cv2.imread(fname, cv2.IMREAD_COLOR)
 
-    #while(vidcap.isOpened()):
+t_output = time.time()
+#print('Failed to load images')
+#exit(-1)
+mpgFile = 'output.mpg'
+vidcap = cv2.VideoCapture(mpgFile)
+cnt = 0
+falseCnt = 0
 
-    out = cv2.VideoWriter("a.mpg", cv2.VideoWriter_fourcc(*'mpeg'), 30.0, (752, 480))
-    while(True) :
-    # read()는 grab()와 retrieve() 두 함수를 한 함수로 불러옴
-    # 두 함수를 동시에 불러오는 이유는 프레임이 존재하지 않을 때
-    # grab() 함수를 이용하여 return false 혹은 NULL 값을 넘겨 주기 때문
-        fps = time.time()
-        ret, image = vidcap.read()
-        # 캡쳐된 이미지를 저장하는 함수
-        if(int(vidcap.get(1))):
-            cnt += 1
-            numOfRect = 0
-            rect = processing(image)
-            for (x1, x2, y1, y2, pred) in rect:
-                numOfRect += 1
-                if pred == 1:
-                    #ec = (0, 0, 255)
-                    #lw = 3
-                    imgName = './catch/fa' + str(falseCnt) + '.jpg'
-                    cv2.imwrite(imgName, image[y1:y2, x1:x2])
-                    falseCnt += 1
-                #else:
-                    #ec = (255, 0, 0)
-                    #lw = 1
-                    #cv2.rectangle(image, (x1, y1), (x2, y2), ec, lw)
-            out.write(image)
-            #cv2.imshow('frame', image)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+#while(vidcap.isOpened()):
 
-            #if(cnt % 30 == 0):
-            print('%d frame' % (cnt))
+out = cv2.VideoWriter("a.mpg", cv2.VideoWriter_fourcc(*'mpeg'), 30.0, (752, 480))
+while(True) :
+# read()는 grab()와 retrieve() 두 함수를 한 함수로 불러옴
+# 두 함수를 동시에 불러오는 이유는 프레임이 존재하지 않을 때
+# grab() 함수를 이용하여 return false 혹은 NULL 값을 넘겨 주기 때문
+    fps = time.time()
+    ret, image = vidcap.read()
+    # 캡쳐된 이미지를 저장하는 함수
+    if(int(vidcap.get(1))):
+        cnt += 1
+        if cnt <= fname:
+            continue
+        numOfRect = 0
+        rect = processing(image)
+        for (x1, x2, y1, y2, pred) in rect:
+            numOfRect += 1
+            if pred == 1:
+                ec = (0, 0, 255)
+                lw = 3
+                #imgName = './catch/fa' + str(falseCnt) + '.jpg'
+                #cv2.imwrite(imgName, image[y1:y2, x1:x2])
+                #falseCnt += 1
+            else:
+                ec = (255, 0, 0)
+                lw = 1
+            cv2.rectangle(image, (x1, y1), (x2, y2), ec, lw)
+        out.write(image)
+        #cv2.imshow('frame', image)
+        #if cv2.waitKey(1) & 0xFF == ord('q'):
+            #break
 
-            fps = time.time() - fps
-            print(str(fps) + "sec")
+        print('%d frame' % (cnt))
 
-        if ret == 0:
-            break
+        fps = time.time() - fps
+        print(str(fps) + "sec")
 
-            # cv2.imshow('frame', image)
-            # if cv2.waitKey(1) & 0xFF == ord('q'):
-            # break
-    print("Output time : %s sec", str(time.time() - t_output))
+    if ret == 0:
+        break
 
+print("Output time : %s sec", str(time.time() - t_output))
 print("Total time : %s sec", str(time.time() - totalTime))

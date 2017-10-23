@@ -127,3 +127,6 @@ fabric.properties
 
 # mpg file
 *.mpg
+
+# folder with feature file
+notAppliedPCA*
