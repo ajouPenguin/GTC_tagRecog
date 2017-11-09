@@ -130,3 +130,5 @@ fabric.properties
 
 # folder with feature file
 notAppliedPCA*
+
+.DS_Store
