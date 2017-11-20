@@ -2,18 +2,16 @@ import zbarlight as zbar
 from PIL import Image
 import cv2
 
-def main():
-    image = cv2.imread('a.png')
+def qrDecode():
+    video = cv2.VideoCapture('input.mpg')
+    
+    while(True):
+        ret, frame = video.read()
 
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    image = Image.fromarray(gray)
+        image = Image.fromarray(gray)
 
-    codes = zbar.scan_codes('qrcode',image)
+        codes = zbar.scan_codes('qrcode',image)
 
-    print(codes)
-
-if __name__ == "__main__":
-    main()
-
-
+        print(codes)
