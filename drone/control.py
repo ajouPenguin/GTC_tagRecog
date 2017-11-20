@@ -75,7 +75,7 @@ class Controller:
 
         distancia = 1/(self.qrfinder.size[1]+0.00001)
 
-        self.move(dx,dy, dz, 0)
+        self.move(dx,dy, dz, 0) # TEMP: modified
 
     def move(self, dx, dy, dz, rot):
         # TODO: this show implementation
