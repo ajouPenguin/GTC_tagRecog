@@ -20,7 +20,6 @@ Samsung GTC assignment & SW capstone design projects
 - 공장 : 사람의 손을 거치지 않아도 영상만 확보된다면 빠르고 정확하게 재고의 전산화가 가능
 ## Requirements
 - NumPy
-- matplotlib
 - opencv3.3
 - python3.x
 - scikit-learn (SVM)
