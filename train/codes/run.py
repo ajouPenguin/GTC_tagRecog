@@ -5,12 +5,12 @@ from sklearn.svm import SVC
 from sklearn.externals import joblib
 import time
 import math
-import brightChange
-import loadDBFromPath
+from brightChange import brightChange
+from loadDBFromPath import loadDBFromPath
 from outputVideo import outputVideo
 
 def train(dataPath):
- 
+
     db = []
     labels = []
 
@@ -21,11 +21,15 @@ def train(dataPath):
             print('No file in path')
             return None
         for f in fileList:
-            db += loadDBFromPath(os.path.join(dataPath, f), cnt)
+            pa = os.path.join(dataPath, f)
+            #print(pa)
+            #print (os.access(pa, os.R_OK))
+            db += loadDBFromPath(pa, cnt)
             cnt += 1
             labels.append(f)
-    except:
-        print('No files in path') 
+    except Exception as e:
+        print('No files in path')
+        print(e)
         return None
 
     # HOG feature data training
@@ -76,7 +80,7 @@ def train(dataPath):
             data.append(tmp2)
 
         trainset = np.float32(data)
-        classes = np.array([itr['class'] for itr in db])
+        classes = [np.array([itr['class'] for itr in db])]
 
         t_learn = time.time()
 
@@ -87,4 +91,5 @@ def train(dataPath):
 
     outputVideo(clf, nonFiltered)
 
-train('../data')
+if __name__ == '__main__':
+    train('../data')

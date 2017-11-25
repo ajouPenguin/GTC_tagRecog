@@ -37,7 +37,7 @@ class Controller:
     def __init__(self):
         self.interface = RobotInterface()
         self.qrfinder = QrFinder()
-        self.interface.set_target(0.75, 1.45, 0.2, 0) # default location
+        self.interface.set_target(0.175, 1.45, 0.2, 0) # default location
 
         self.pidx = PidController(0.0001, 0.0001, 0.0001)
         self.pidy = PidController(0.0002, 0.0001, 0.001)
@@ -47,6 +47,7 @@ class Controller:
         self.target = 1
         self.direction = 0
         task = [UP, UP, RIGHT, RIGHT, DOWN, LEFT, LEFT, DOWN, RIGHT, RIGHT, 27]
+        task = [RIGHT, RIGHT, UP, LEFT, LEFT, UP, RIGHT, RIGHT, DOWN, DOWN, 27]
         while True:
             time.sleep(0.05)
 
@@ -60,11 +61,13 @@ class Controller:
                 pass
 
 
-
+            if self.target == 0:
+                print '[*] Illegal target'
+                break
             if self.target == current:
                 self.direction = 0
 
-            v = 0.020
+            v = 0.030
             if self.direction == 1:
                 self.interface.move(0, 0, v, 0)
                 continue

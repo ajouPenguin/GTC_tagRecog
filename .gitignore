@@ -132,3 +132,5 @@ fabric.properties
 notAppliedPCA*
 
 .DS_Store
+
+*.jpg

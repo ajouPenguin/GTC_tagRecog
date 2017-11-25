@@ -1,3 +1,8 @@
+import os
+import cv2
+from regionProposal import extractFeature
+from brightChange import brightChange
+
 # Loads database images
 def loadDBFromPath(path, classnum, isFiltered=1):
     db = []
