@@ -1,7 +1,7 @@
 from regionProposal import processing
 import cv2
 
-def outputVideo(clf, nonFiltered):
+def outputVideo(clf):#, nonFiltered):
     # loading video
     print('Load video')
     mpgFile = '../data/input.mpg'
@@ -18,7 +18,7 @@ def outputVideo(clf, nonFiltered):
         ret, image = vidcap.read()
         if (int(vidcap.get(1))):
             numOfRect = 0
-            rect = processing(image, clf, nonFiltered)
+            rect = processing(image, clf)#, nonFiltered)
 
             for (x1, x2, y1, y2, pred) in rect:
                 numOfRect += 1

@@ -52,13 +52,30 @@ def train(dataPath):
         clf.fit(trainset, classes)
         joblib.dump(clf, '../output/dump.pkl')
 
-    # non-filtered data training
+    outputVideo(clf)#, nonFiltered)
+
+if __name__ == '__main__':
+    train('../data')
+
+
+
+'''    # non-filtered data training
     try:
+
         nonFiltered = joblib.load('../output/realImgDump.pkl')
         print('Using trained model with non-filtered ')
     except:
         print('Make non-filtered image training file')
         db = []
+        try:
+           for f in fileList:
+                pa = os.path.join(dataPath, f)
+                db += loadDBFromPath(pa, cnt, 0)
+        except Exception as e:
+            print('No files in path')
+            print(e)
+            return None
+
         nonFiltered = SVC()
 
         # Make trainset and classes
@@ -77,19 +94,18 @@ def train(dataPath):
                 for x in y:
                     tmp2.append(x)
 
+
             data.append(tmp2)
 
         trainset = np.float32(data)
         classes = [np.array([itr['class'] for itr in db])]
+
+        print(trainset)
+        print(classes)
 
         t_learn = time.time()
 
         # Start learning
         print('Start learning')
         nonFiltered.fit(trainset, classes)
-        joblib.dump(nonFiltered, '../output/realImgDump.pkl')
-
-    outputVideo(clf, nonFiltered)
-
-if __name__ == '__main__':
-    train('../data')
+        joblib.dump(nonFiltered, '../output/realImgDump.pkl')'''
