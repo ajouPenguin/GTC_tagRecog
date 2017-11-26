@@ -21,6 +21,8 @@ def train(dataPath):
             return None
         for f in fileList:
             pa = os.path.join(dataPath, f)
+            if not os.path.isdir(pa):
+                continue
             db += loadDBFromPath(pa, cnt)
             cnt += 1
             labels.append(f)
@@ -64,6 +66,8 @@ def train(dataPath):
         try:
            for f in fileList:
                 pa = os.path.join(dataPath, f)
+                if not os.path.isdir(pa):
+                    continue
                 db += loadDBFromPath(pa, cnt, 0)
                 cnt += 1
         except Exception as e:

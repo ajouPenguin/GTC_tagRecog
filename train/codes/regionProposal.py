@@ -1,6 +1,7 @@
 import selectiveSearch as ss
 import gtcfeat as gtc
 import numpy as np
+import cv2
 
 # extract feature(default filter is hog)
 def extractFeature(img):
@@ -45,9 +46,7 @@ def processing(cv_img, clf, nonFiltered):
             feat = []
             cropped = cv2.resize(cropped, (50, 50))
             cropped = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
-            for y in cropped:
-                for x in y:
-                    feat.append(x)
+            feat = np.resize(cropped, -1)
             feat = [feat]
             pred = nonFiltered.predict(feat)
         ret.append([x1, x2, y1, y2, pred])
