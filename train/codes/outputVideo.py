@@ -20,8 +20,6 @@ def outputVideo(clf, nonFiltered):
 
         out = cv2.VideoWriter('../output/output.avi', cv2.VideoWriter_fourcc(*'MJPG'), fps, (height, width))
 
-        print(length, width, height, fps)
-
         while (True):
             if cnt % 2 == 0:
                  del prevRect[:]
@@ -53,7 +51,6 @@ def outputVideo(clf, nonFiltered):
                                     printed.append([x1, x2, y1, y2])
                                     break
                 cnt += 1
-                print(image)
                 out.write(image)
                 #break
                 print('%d frame' % (cnt))
