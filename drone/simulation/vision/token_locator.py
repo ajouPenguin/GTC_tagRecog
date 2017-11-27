@@ -32,6 +32,11 @@ class QrFinder():
         self.center = [0, 0]
         self.size = [0, 0]
 
+        self.video = None
+        self.width, self.height = [0, 0]
+
+
+
     def try_to_decode(self, candidate, source, target):
         epsilon = 0.01 * cv2.arcLength(candidate, True)
         approx = cv2.approxPolyDP(candidate, epsilon, True)
@@ -105,10 +110,16 @@ class QrFinder():
             if result != []:
                 break
 
+        if self.video == None:
+            height, width, layers =  vis.shape
+            self.video = cv2.VideoWriter('video.mpg', cv2.VideoWriter_fourcc(*"mpeg"), 30.0, (width, height))
+
         cv2.imshow('contours', vis)
+        self.video.write(vis)
 
         ch = cv2.waitKey(5) & 0xFF
         if ch == 27:
+            self.video.release()
             exit()
 
         return result
