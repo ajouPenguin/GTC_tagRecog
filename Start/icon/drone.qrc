@@ -1,0 +1,18 @@
+<RCC>
+  <qresource prefix="drone">
+    <file>logo.png</file>
+    <file>drone.png</file>
+  </qresource>
+  <qresource prefix="drone_label">
+    <file>drone_pluselabel_clicked.png</file>
+    <file>drone_label_clicked.png</file>
+    <file>drone_pluselabel.png</file>
+    <file>drone_label.png</file>
+  </qresource>
+  <qresource prefix="button">
+    <file>turnoff.png</file>
+  </qresource>
+  <qresource prefix="dashboard">
+    <file>dashboard.png</file>
+  </qresource>
+</RCC>
